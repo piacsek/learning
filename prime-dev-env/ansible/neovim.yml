@@ -1,0 +1,29 @@
+- name: Neovim installation
+  hosts: localhost
+  tasks:
+  - name: Install neovim deps
+    ansible.builtin.apt:
+      # Commenting out because my dockerfile runs as root already
+      # become: true
+      pkg:
+        - cmake
+        - gettext
+        - lua5.1
+        - liblua5.1-0-dev
+  - name: clone nvim
+    ansible.builtin.git:
+      repo: https://github.com/neovim/neovim.git
+      dest: "{{ lookup('ansible.builtin.env', 'HOME') }}/piacsek/neovim"
+      single_branch: true
+      version: master
+  - name: building nvim from source
+    make:
+      chdir: "{{ lookup('ansible.builtin.env', 'HOME') }}/piacsek/neovim"
+      params: 
+        CMAKE_BUILD_TYPE: "RelWithDebInfo"
+  - name: installing nvim from source
+    make:
+      chdir: "{{ lookup('ansible.builtin.env', 'HOME') }}/piacsek/neovim"
+      # become: true
+      target: install 
+
